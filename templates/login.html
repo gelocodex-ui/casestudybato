@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f5f7f2">
+  <title>{% if login_role %}{{ login_role }} sign in{% else %}Staff sign in{% endif %} — FixLink</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="{{ url_for('index') }}" aria-label="FixLink home">
+      <img class="brand-logo" src="{{ url_for('static', filename='images/neust-logo.png') }}" alt="">
+      <span>Fix<span class="brand-light">Link</span></span>
+    </a>
+    <a class="nav-button" href="{{ url_for('index') }}">Back to reports</a>
+  </header>
+
+  <main class="login-shell">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div class="flash-stack" aria-live="polite">
+          {% for category, message in messages %}
+            <div class="flash flash-{{ category }}">{{ message }}</div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+
+    <section class="form-card login-card">
+      {% if login_role %}
+        <p class="eyebrow">{{ login_role|upper }} ACCESS</p>
+        <h1>{{ login_role }} sign in</h1>
+        <p class="login-description">
+          {% if login_role == "Admin" %}
+            Review reports and assign maintenance work.
+          {% else %}
+            View reports assigned to you and update their status.
+          {% endif %}
+        </p>
+        <form action="{{ url_for('login_submit', role_key=role_key) }}" method="post">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+          <label for="username">Username</label>
+          <input id="username" name="username" type="text" autocomplete="username" maxlength="120" required>
+
+          <label for="password">Password</label>
+          <input id="password" name="password" type="password" autocomplete="current-password" required>
+
+          <button class="submit-button login-submit" type="submit">Sign in <span aria-hidden="true">→</span></button>
+        </form>
+        <p class="login-description"><a href="{{ url_for('login') }}">Choose a different staff sign-in</a></p>
+      {% else %}
+        <p class="eyebrow">STAFF ACCESS</p>
+        <h1>Choose your sign in</h1>
+        <p class="login-description">Select the account type you use to access FixLink.</p>
+        <div class="login-role-links">
+          <a class="submit-button" href="{{ url_for('role_login', role_key='admin') }}">Admin sign in <span aria-hidden="true">→</span></a>
+          <a class="submit-button" href="{{ url_for('role_login', role_key='maintenance') }}">Maintenance worker sign in <span aria-hidden="true">→</span></a>
+        </div>
+      {% endif %}
+    </section>
+  </main>
+</body>
+</html>
